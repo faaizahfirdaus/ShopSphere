@@ -1,0 +1,47 @@
+services:
+
+  namenode:
+    image: apache/hadoop:3.5.0
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - "9870:9870"
+    env_file:
+      - ./config
+    volumes:
+      - namenode_data:/tmp/hadoop-root/dfs/name
+
+  datanode:
+    image: apache/hadoop:3.5.0
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./config
+    volumes:
+      - datanode_data:/tmp/hadoop-root/dfs/data
+    depends_on:
+      - namenode
+
+  resourcemanager:
+    image: apache/hadoop:3.5.0
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    ports:
+      - "8088:8088"
+    env_file:
+      - ./config
+    depends_on:
+      - namenode
+
+  nodemanager:
+    image: apache/hadoop:3.5.0
+    hostname: nodemanager
+    command: ["yarn", "nodemanager"]
+    env_file:
+      - ./config
+    depends_on:
+      - resourcemanager
+
+volumes:
+  namenode_data:
+  datanode_data:

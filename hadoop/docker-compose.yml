@@ -1,47 +1,54 @@
 services:
-
   namenode:
-    image: apache/hadoop:3.5.0
+    image: apache/hadoop:3.4.3
     hostname: namenode
+    container_name: hadoop-namenode-1
     command: ["hdfs", "namenode"]
     ports:
       - "9870:9870"
+      - "8020:8020"
     env_file:
       - ./config
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
     volumes:
-      - namenode_data:/tmp/hadoop-root/dfs/name
+      - ./hdfs-rbf-site.xml:/opt/hadoop/etc/hadoop/hdfs-rbf-site.xml
 
   datanode:
-    image: apache/hadoop:3.5.0
+    image: apache/hadoop:3.4.3
     hostname: datanode
+    container_name: hadoop-datanode-1
     command: ["hdfs", "datanode"]
     env_file:
       - ./config
     volumes:
-      - datanode_data:/tmp/hadoop-root/dfs/data
+      - ./hdfs-rbf-site.xml:/opt/hadoop/etc/hadoop/hdfs-rbf-site.xml
     depends_on:
       - namenode
 
   resourcemanager:
-    image: apache/hadoop:3.5.0
+    image: apache/hadoop:3.4.3
     hostname: resourcemanager
+    container_name: hadoop-resourcemanager-1
     command: ["yarn", "resourcemanager"]
     ports:
       - "8088:8088"
     env_file:
       - ./config
+    volumes:
+      - ./hdfs-rbf-site.xml:/opt/hadoop/etc/hadoop/hdfs-rbf-site.xml
     depends_on:
       - namenode
+      - datanode
 
   nodemanager:
-    image: apache/hadoop:3.5.0
+    image: apache/hadoop:3.4.3
     hostname: nodemanager
+    container_name: hadoop-nodemanager-1
     command: ["yarn", "nodemanager"]
     env_file:
       - ./config
+    volumes:
+      - ./hdfs-rbf-site.xml:/opt/hadoop/etc/hadoop/hdfs-rbf-site.xml
     depends_on:
       - resourcemanager
-
-volumes:
-  namenode_data:
-  datanode_data:

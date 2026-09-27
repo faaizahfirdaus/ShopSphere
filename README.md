@@ -1,4 +1,5 @@
 ShopSphere – E-Commerce Order Analytics
+
 ShopSphere is a Big Data Analytics project for analyzing e-commerce order and customer data using Hadoop MapReduce. The project demonstrates distributed data storage using HDFS, distributed processing using MapReduce and job management using YARN.
 
 1. Project Overview

@@ -333,3 +333,301 @@ For example:
 
 C001 → ORD|2|1499
 C001 → CUST|C001|Gold
+During the shuffle and sort phase, all records belonging to the same customer are brought together.
+
+The reducer then:
+
+Identifies the customer's membership tier.
+Calculates quantity × price for each order.
+Associates the order value with the membership tier.
+Two-stage MapReduce Processing
+Job 1 – Join
+Orders + Customers
+        |
+        v
+Reduce-side Join
+        |
+        v
+Membership Tier + Order Value
+Job 2 – Aggregation
+Membership Tier + Order Value
+        |
+        v
+Group by Membership Tier
+        |
+        v
+Calculate Average
+Implementation
+
+Files:
+
+src/Problem3/
+├── Problem3Mapper.java
+├── Problem3Reducer.java
+├── Problem3AggregationMapper.java
+├── Problem3AggregationReducer.java
+└── Problem3Driver.java
+Execution
+
+The P3 JAR was executed using:
+
+hadoop jar /tmp/shopsphere-p3.jar \
+Problem3.Problem3Driver \
+/shopsphere/input/orders.csv \
+/shopsphere/input/customers.csv \
+/shopsphere/output/p3
+
+Both MapReduce jobs completed successfully.
+
+map 100% reduce 100%
+Job ... completed successfully
+Job 1 Counters
+Map input records    = 1102
+Map output records   = 1100
+Reduce output records = 1000
+
+The input consists of:
+
+1000 orders
++ 100 customers
++ 2 header records
+= 1102 records
+
+The first job generated 1000 joined order-level results.
+
+Job 2 Counters
+
+The second job processed the 1000 joined order values and produced 3 final records corresponding to:
+
+Gold
+Platinum
+Silver
+Final Output
+Gold       12531.081967213115
+Platinum   12724.672043010753
+Silver     11588.609375
+Result Table
+Membership Tier	Average Order Value
+Gold	₹12,531.08
+Platinum	₹12,724.67
+Silver	₹11,588.61
+
+The values represent the arithmetic mean of quantity × price for orders belonging to customers in each membership tier.
+
+Screenshot – Problem 3 Execution
+
+Insert screenshot showing both MapReduce jobs completing successfully.
+
+Screenshot – Problem 3 Output
+
+Insert screenshot of:
+
+hdfs dfs -cat /shopsphere/output/p3/part-r-00000
+
+Screenshot – YARN ResourceManager
+
+Insert screenshot of:
+
+http://localhost:8088
+
+10. Problem 4 – Top 5 Customers by Total Spend
+Objective
+
+Identify the top five customers based on their total spending.
+
+Formula
+Customer Spend = Σ(Quantity × Price)
+
+For every order, the revenue is calculated using:
+
+Quantity × Price
+
+The mapper emits customer-wise spending information and the reducer aggregates the total spending for each customer.
+
+The resulting customer totals are then used to identify the top five customers.
+
+MapReduce Flow
+orders.csv
+     |
+     v
+   Mapper
+     |
+     | customerId → order value
+     v
+ Shuffle and Sort
+     |
+     v
+  Reducer
+     |
+     v
+Customer total spending
+     |
+     v
+Top 5 customers
+Implementation
+
+Files:
+
+src/Problem4/
+Output
+
+Add the actual Problem 4 output after execution.
+
+Screenshot – Problem 4 Execution
+
+Insert successful MapReduce execution screenshot.
+
+Screenshot – Problem 4 Output
+
+Insert HDFS output screenshot.
+11. Problem 5 – City-wise Order Percentage and Membership-tier Analysis
+Objective
+
+Analyze the percentage of orders associated with each city and study the distribution of membership tiers.
+
+The analysis uses the customer and order information to associate each order with:
+
+Customer city
+Membership tier
+Order Percentage
+
+The percentage of orders for a city is calculated as:
+
+City Order Percentage
+=
+(City Order Count / Total Order Count) × 100
+MapReduce Flow
+Orders + Customer Information
+          |
+          v
+        Mapper
+          |
+          v
+     Shuffle & Sort
+          |
+          v
+        Reducer
+          |
+          v
+City-wise order percentage
+and membership analysis
+Implementation
+
+Files:
+
+src/Problem5/
+Output
+
+Add the actual Problem 5 output after execution.
+
+Screenshot – Problem 5 Execution
+
+Insert successful MapReduce execution screenshot.
+
+Screenshot – Problem 5 Output
+
+Insert HDFS output screenshot.
+
+12. Hadoop and YARN Execution
+
+All MapReduce jobs are executed inside the Dockerized Hadoop environment.
+
+The general processing architecture is:
+
+                 ShopSphere Dataset
+                         |
+                         v
+                       HDFS
+                         |
+                         v
+                      Mapper
+                         |
+                         v
+                 Shuffle and Sort
+                         |
+                         v
+                      Reducer
+                         |
+                         v
+                   HDFS Output
+
+YARN manages the execution of MapReduce applications.
+
+The ResourceManager interface is available at:
+
+http://localhost:8088
+Screenshot – Hadoop ResourceManager
+
+Insert ResourceManager screenshot showing the submitted/completed application.
+
+13. Project Structure
+ShopSphere/
+│
+├── data/
+│   ├── orders.csv
+│   └── customers.csv
+│
+├── src/
+│   ├── Problem1/
+│   ├── Problem2/
+│   ├── Problem3/
+│   ├── Problem4/
+│   └── Problem5/
+│
+├── hive/
+│   └── Problem6/
+│
+├── pig/
+│   └── Problem6/
+│
+├── hadoop/
+│   ├── config
+│   ├── hdfs-rbf-site.xml
+│   └── docker-compose.yml
+│
+├── report/
+│
+└── README.md
+14. Running the Hadoop Cluster
+
+Start the Hadoop Docker cluster using:
+
+docker compose -f hadoop\docker-compose.yml up -d
+
+Check the running containers using:
+
+docker compose -f hadoop\docker-compose.yml ps
+
+The cluster contains:
+
+hadoop-namenode-1
+hadoop-datanode-1
+hadoop-resourcemanager-1
+hadoop-nodemanager-1
+15. HDFS Commands
+
+Create the input directory:
+
+hdfs dfs -mkdir -p /shopsphere/input
+
+Upload datasets:
+
+hdfs dfs -put -f orders.csv /shopsphere/input/orders.csv
+hdfs dfs -put -f customers.csv /shopsphere/input/customers.csv
+
+Check the files:
+
+hdfs dfs -ls /shopsphere/input
+
+Read MapReduce output:
+
+hdfs dfs -cat <output-path>/part-r-00000
+17. Conclusion
+
+The ShopSphere project demonstrates the use of Hadoop for processing e-commerce order and customer data.
+
+HDFS is used for distributed storage, while MapReduce is used to perform business analytics through mapper and reducer stages. YARN manages the execution of the MapReduce applications within the Dockerized Hadoop cluster.
+
+Problem 2 successfully generated city-wise revenue for all 10 cities, while Problem 3 successfully performed a reduce-side join between orders and customer profiles followed by membership-tier aggregation.
+
+The project demonstrates how raw e-commerce data can be transformed into useful analytical results using distributed Big Data processing techniques.

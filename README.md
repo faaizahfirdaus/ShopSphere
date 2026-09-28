@@ -224,7 +224,7 @@ The MapReduce job is submitted to YARN using Hadoop's `hadoop jar` command.
 ### Screenshot – Problem 1 Execution
 
 > Insert screenshot showing:
->
+>![alt text](screenshots/exe.jpeg)
 > `map 100%`
 >
 > `reduce 100%`
@@ -234,7 +234,7 @@ The MapReduce job is submitted to YARN using Hadoop's `hadoop jar` command.
 ### Screenshot – Problem 1 Output
 
 > Insert screenshot showing the HDFS output using:
->
+>![alt text](screenshots/output.jpeg)
 > `hdfs dfs -cat <P1-output-path>`
 
 ---
